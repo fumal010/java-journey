@@ -3,11 +3,10 @@ import java.util.Scanner;
 public class Conversion {
 
 
-    public static void temperatureConverter () {
-        Scanner temperatureScanner = new Scanner(System.in);
+    public static void temperatureConverter (Scanner scanner) {
         
         System.out.println("\nEnter 1 : Celsius → Kelvin \nEnter 2 : Celsius → Fahrenheit\n");
-        int conversionChoice = temperatureScanner.nextInt();
+        int conversionChoice = scanner.nextInt();
 
         if (conversionChoice != 1 && conversionChoice != 2) {
             System.out.println("\nInvalid conversion choice\n");
@@ -16,7 +15,7 @@ public class Conversion {
 
 
         System.out.println("\nEnter tempreture value\n");
-        double temperatureValue = temperatureScanner.nextDouble();
+        double temperatureValue = scanner.nextDouble();
 
         if (Double.isNaN(temperatureValue)) {
             System.out.println("\nInvalid temperature value\n");
@@ -34,11 +33,10 @@ public class Conversion {
         }
     }
 
-    public static void weightConverter () {
-        Scanner weightScanner = new Scanner(System.in);
+    public static void weightConverter (Scanner scanner) {
 
         System.out.println("\nEnter 1 : Kilograms → Pounds \nEnter 2 : Kilograms → Grams\n");
-        int conversionChoice = weightScanner.nextInt();
+        int conversionChoice = scanner.nextInt();
 
         if (conversionChoice != 1 && conversionChoice != 2) {
             System.out.println("\nInvalid conversion choice\n");
@@ -46,7 +44,7 @@ public class Conversion {
         }
 
         System.out.println("\nEnter weight value\n");
-        double weightValue = weightScanner.nextDouble();
+        double weightValue = scanner.nextDouble();
 
         if (Double.isNaN(weightValue)) {
             System.out.println("\nInvalid weight value\n");
@@ -63,11 +61,10 @@ public class Conversion {
         }
     }
 
-    public static void distanceConverter () {
-        Scanner distanceScanner = new Scanner(System.in);
+    public static void distanceConverter (Scanner scanner) {
 
         System.out.println("\nEnter 1 : Meters → Feet \nEnter 2 : Meters → Miles\n");
-        int conversionChoice = distanceScanner.nextInt();
+        int conversionChoice = scanner.nextInt();
 
         if (conversionChoice != 1 && conversionChoice != 2) {
             System.out.println("\nInvalid conversion choice\n");
@@ -75,7 +72,7 @@ public class Conversion {
         }
 
         System.out.println("\nEnter distance value\n");
-        double distanceValue = distanceScanner.nextDouble();
+        double distanceValue = scanner.nextDouble();
 
         if (Double.isNaN(distanceValue)) {
             System.out.println("\nInvalid distance value\n");
@@ -92,11 +89,10 @@ public class Conversion {
         }
     }
 
-    public static void timeConverter () {
-        Scanner timeScanner = new Scanner(System.in);
+    public static void timeConverter (Scanner scanner) {
         System.out.println("\nWhat unit of time is it?\n");
         System.out.println("\nEnter 1 : Hours \nEnter 2 : Minutes \nEnter 3 : Seconds \n");
-        int conversionChoice = timeScanner.nextInt();
+        int conversionChoice = scanner.nextInt();
 
         if (conversionChoice != 1 && conversionChoice != 2 && conversionChoice != 3) {
             System.out.println("\nInvalid conversion choice\n");
@@ -104,7 +100,7 @@ public class Conversion {
         }
 
         System.out.println("\nEnter time value\n");
-        double timeValue = timeScanner.nextDouble();
+        double timeValue = scanner.nextDouble();
 
         if (Double.isNaN(timeValue)) {
             System.out.println("\nInvalid time value\n");
