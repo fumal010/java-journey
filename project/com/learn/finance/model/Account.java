@@ -6,6 +6,7 @@ import com.learn.finance.exception.InvalidAmountException;
 import com.learn.finance.utils.FormatCheck;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 public class Account {
     private static int sequence = 0;
@@ -53,8 +54,8 @@ public class Account {
 
         this.name = name;
         this.type = type;
-        this.balance = balance;
-        this.initialBalance = balance;
+        this.balance = Optional.ofNullable(balance).orElse(BigDecimal.ZERO);
+        this.initialBalance = this.balance;
         this.creditLimit = creditLimit;
     }
 
@@ -75,8 +76,8 @@ public class Account {
         return balance;
     }
 
-    public BigDecimal getCreditLimit() {
-        return creditLimit;
+    public Optional<BigDecimal> getCreditLimit() {
+        return Optional.ofNullable(creditLimit);
     }
 
     private boolean isCredit() {

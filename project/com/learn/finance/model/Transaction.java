@@ -2,6 +2,7 @@ package com.learn.finance.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Optional;
 
 import com.learn.finance.enums.*;
 import com.learn.finance.utils.FormatCheck;
@@ -25,6 +26,8 @@ public class Transaction {
     private String accountId;
 
     private String toAccountId;
+
+    private TransactionStatus status;
 
     {
         sequence++;
@@ -64,6 +67,7 @@ public class Transaction {
         this.date = date;
         this.accountId = accountId;
         this.toAccountId = toAccountId;
+        this.status = TransactionStatus.PENDING;
     }
 
 
@@ -101,8 +105,19 @@ public class Transaction {
         return accountId;
     }
 
-    public String getToAccountId() {
-        return toAccountId;
+    public Optional<String> getToAccountId() {
+        return Optional.ofNullable(toAccountId);
+    }
+
+    public TransactionStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(TransactionStatus status) {
+        if (FormatCheck.isNull(status)) {
+            throw new IllegalArgumentException("Status cannot be null");
+        }
+        this.status = status;
     }
 
 
@@ -114,6 +129,7 @@ public class Transaction {
                 + ", type=" + type
                 + ", category=" + category
                 + ", amount=" + FormatCheck.formatMoney(amount)
+                + ", status=" + status
                 + ", desc='" + description + "'}";
     }
 }
