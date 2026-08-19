@@ -5,11 +5,14 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import com.learn.finance.model.*;
 import com.learn.finance.enums.*;
+import com.learn.finance.exception.AccountNotFoundException;
+import com.learn.finance.exception.FinanceException;
 
 public class FinanceTracker {
 
@@ -50,26 +53,21 @@ public class FinanceTracker {
         return accounts.containsKey(id);
     }
 
-    // O(1)
-    public Account findById(String id) {
-        Account foundAccount = accounts.get(id);
-        if (foundAccount != null) {
-            return foundAccount;
-        } else {
-            // throw new AccountNotFoundException("Account not found: " + id);
-            return null; // remove
-        }
+    public Optional<Account> findById(String id) {
+        return Optional.ofNullable(accounts.get(id));
     }
 
-    // O(n)
-    public Account findByName(String name) {
+    public Optional<Account> findByName(String name) {
         for (Account account : accounts.values()) {
             if (account.getName().equalsIgnoreCase(name)) {
-                return account;
+                return Optional.of(account);
             }
         }
-        // throw new AccountNotFoundException("Account not found: " + name);
-        return null; // remove
+        return Optional.empty();
+    }
+
+    private Account requireById(String id) {
+        return findById(id).orElseThrow(() -> new AccountNotFoundException("Account not found: " + id));
     }
 
 
@@ -109,8 +107,9 @@ public class FinanceTracker {
 
        Transaction transaction = createTransaction(description, amount, type, category, date, accountId);
 
-       Account transactionAccount = findById(accountId);
+       Account transactionAccount = requireById(accountId);
        transactionAccount.deposit(amount);
+       transaction.setStatus(TransactionStatus.SUCCEEDED);
 
        return transaction;
    }
@@ -127,26 +126,37 @@ public class FinanceTracker {
 
         Transaction transaction = createTransaction(description, amount, type, category, date, accountId);
 
-        Account transactionAccount = findById(accountId);
+        Account transactionAccount = requireById(accountId);
         transactionAccount.withdraw(amount);
+        transaction.setStatus(TransactionStatus.SUCCEEDED);
 
         return transaction;
    }
 
    public Transaction transfer(String fromAccountId, String toAccountId, BigDecimal amount, String description, LocalDate date) {
 
-       Transaction transaction = createTransaction(description, amount, TransactionType.TRANSFER, Category.OTHER, date, fromAccountId, toAccountId);
+       Account transactionFromAccount = requireById(fromAccountId);
+       Account transactionToAccount = requireById(toAccountId);
 
-       try{
-            Account transactionFromAccount = findById(fromAccountId);
-            transactionFromAccount.withdraw(amount);
+       Transaction transaction = new Transaction(description, amount, TransactionType.TRANSFER, Category.OTHER, date, fromAccountId, toAccountId);
+       transactions.add(transaction);
 
-            Account transactionToAccount = findById(toAccountId);
-            transactionToAccount.deposit(amount);
-       } catch(Exception e){
-            throw new IllegalArgumentException("Transfer failed :" + e.getMessage());
+       try {
+           transactionFromAccount.withdraw(amount);
+       } catch (FinanceException e) {
+           transaction.setStatus(TransactionStatus.FAILED);
+           return transaction;
        }
 
+       try {
+           transactionToAccount.deposit(amount);
+       } catch (FinanceException e) {
+           transactionFromAccount.deposit(amount);
+           transaction.setStatus(TransactionStatus.FAILED);
+           return transaction;
+       }
+
+       transaction.setStatus(TransactionStatus.SUCCEEDED);
        return transaction;
    }
    
@@ -262,10 +272,8 @@ public class FinanceTracker {
        Budget report = new Budget(year, month);
        if (stored != null) {
            for (Category category : Category.values()) {
-               BudgetEntry entry = stored.getEntry(category);
-               if (entry != null) {
-                   report.setBudget(category, entry.getPlannedAmount());
-               }
+               stored.getEntry(category)
+                       .ifPresent(entry -> report.setBudget(category, entry.getPlannedAmount()));
            }
        }
 
@@ -276,7 +284,7 @@ public class FinanceTracker {
            if (transaction.getType() != TransactionType.EXPENSE) {
                continue;
            }
-           if (report.getEntry(transaction.getCategory()) != null) {
+           if (report.getEntry(transaction.getCategory()).isPresent()) {
                report.recordExpense(transaction.getCategory(), transaction.getAmount());
            }
        }

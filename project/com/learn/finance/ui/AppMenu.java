@@ -18,7 +18,6 @@ import com.learn.finance.exception.InsufficientFundsException;
 import com.learn.finance.exception.InvalidAmountException;
 import com.learn.finance.model.Account;
 import com.learn.finance.model.Budget;
-import com.learn.finance.model.BudgetEntry;
 import com.learn.finance.model.Transaction;
 import com.learn.finance.service.FinanceTracker;
 import com.learn.finance.service.MonthlySummary;
@@ -201,11 +200,13 @@ public class AppMenu {
 
         LocalDate date = promptDate();
 
-        Account from = tracker.findById(fromId);
-        Account to = tracker.findById(toId);
-        tracker.transfer(fromId, toId, amount, description, date);
-        System.out.println("Transfer recorded: " + FormatCheck.formatMoney(amount)
-                + " from " + from.getName() + " to " + to.getName());
+        Transaction transaction = tracker.transfer(fromId, toId, amount, description, date);
+
+        String fromName = tracker.findById(fromId).map(Account::getName).orElse(fromId);
+        String toName = tracker.findById(toId).map(Account::getName).orElse(toId);
+        String outcome = transaction.getStatus().isSucceeded() ? "Transfer recorded" : "Transfer failed";
+        System.out.println(outcome + ": " + FormatCheck.formatMoney(amount)
+                + " from " + fromName + " to " + toName);
     }
 
     // ----- Option 6 -----
@@ -285,19 +286,20 @@ public class AppMenu {
     }
 
     private void printTransactionTable(List<Transaction> list) {
-        System.out.println("| ID | Date | Type | Category | Amount | Description |");
-        System.out.println("|----|------|------|----------|--------|-------------|");
+        System.out.println("| ID | Date | Type | Category | Amount | Status | Description |");
+        System.out.println("|----|------|------|----------|--------|--------|-------------|");
         if (list.isEmpty()) {
             System.out.println("(no transactions)");
             return;
         }
         for (Transaction t : list) {
-            System.out.printf("| %s | %s | %s | %s | %s | %s |%n",
+            System.out.printf("| %s | %s | %s | %s | %s | %s | %s |%n",
                     t.getId(),
                     t.getDate(),
                     t.getType(),
                     t.getCategory(),
                     FormatCheck.formatMoney(t.getAmount()),
+                    t.getStatus(),
                     t.getDescription());
         }
     }
@@ -387,17 +389,13 @@ public class AppMenu {
         System.out.println("|----------|---------|--------|----------|--------|");
 
         for (Category category : Category.values()) {
-            BudgetEntry entry = report.getEntry(category);
-            if (entry == null) {
-                continue;
-            }
-            String status = entry.isOverBudget() ? "OVER" : "UNDER";
-            System.out.printf("| %s | %s | %s | %s | %s |%n",
+            report.getEntry(category).ifPresent(entry -> System.out.printf(
+                    "| %s | %s | %s | %s | %s |%n",
                     entry.getCategory(),
                     FormatCheck.formatMoney(entry.getPlannedAmount()),
                     FormatCheck.formatMoney(entry.getActualAmount()),
                     FormatCheck.formatMoney(entry.getVariance()),
-                    status);
+                    entry.isOverBudget() ? "OVER" : "UNDER"));
         }
 
         BigDecimal totalPlanned = report.getTotalPlanned();

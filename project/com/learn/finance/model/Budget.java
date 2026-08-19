@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.learn.finance.enums.Category;
 
@@ -33,8 +34,9 @@ public class Budget {
         entry.addActual(amount);
     }
 
-    public BudgetEntry getEntry(Category category) {
-        return entries.get(category);
+    // empty when no budget was set for that category
+    public Optional<BudgetEntry> getEntry(Category category) {
+        return Optional.ofNullable(entries.get(category));
     }
 
     public List<BudgetEntry> getOverBudgetCategories() {

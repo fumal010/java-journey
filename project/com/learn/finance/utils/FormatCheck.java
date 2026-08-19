@@ -6,6 +6,7 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
+import java.util.Optional;
 
 public class FormatCheck {
 
@@ -37,7 +38,10 @@ public class FormatCheck {
     }
 
     public static String formatMoney(BigDecimal amount) {
-        return "$" + amount.setScale(2, RoundingMode.HALF_UP);
+        return Optional.ofNullable(amount)
+                .map(value -> value.setScale(2, RoundingMode.HALF_UP))
+                .map(value -> "$" + value)
+                .orElse("N/A");
     }
 
 }

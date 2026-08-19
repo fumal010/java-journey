@@ -3,6 +3,7 @@ package com.learn.finance.service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Map;
+import java.util.Optional;
 
 import com.learn.finance.enums.Category;
 import com.learn.finance.model.Transaction;
@@ -54,12 +55,12 @@ public class MonthlySummary {
         return incomeByCategory;
     }
 
-    public Transaction getLargestExpense() {
-        return largestExpense;
+    public Optional<Transaction> getLargestExpense() {
+        return Optional.ofNullable(largestExpense);
     }
 
-    public Transaction getLargestIncome() {
-        return largestIncome;
+    public Optional<Transaction> getLargestIncome() {
+        return Optional.ofNullable(largestIncome);
     }
 
     private static String formatMoney(BigDecimal amount) {
