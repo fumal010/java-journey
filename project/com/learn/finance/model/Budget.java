@@ -34,7 +34,6 @@ public class Budget {
         entry.addActual(amount);
     }
 
-    // empty when no budget was set for that category
     public Optional<BudgetEntry> getEntry(Category category) {
         return Optional.ofNullable(entries.get(category));
     }
